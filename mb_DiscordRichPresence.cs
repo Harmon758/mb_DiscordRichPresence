@@ -54,7 +54,8 @@ namespace MusicBeePlugin
         {
             DiscordRPC.RichPresence presence = new DiscordRPC.RichPresence();
             presence.state = state;
-            presence.details = Utility.Utf16ToUtf8(song);
+            song = Utility.Utf16ToUtf8(song);
+            presence.details = song.Substring(0, song.Length - 1);
             presence.largeImageKey = "musicbee";
             long now = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             presence.startTimestamp = now - position;
