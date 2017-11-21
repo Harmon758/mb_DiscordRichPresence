@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MusicBeePlugin
+namespace DiscordInterface
 {
     public class DiscordRPC
     {

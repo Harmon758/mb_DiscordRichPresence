@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 
+using DiscordInterface;
+using Util;
+
 namespace MusicBeePlugin
 {
     public partial class Plugin
@@ -47,11 +50,11 @@ namespace MusicBeePlugin
         private void HandleErrorCallback(int errorCode, string message) { }
         private void HandleDisconnectedCallback(int errorCode, string message) { }
 
-        private void UpdatePresence(string songName, string duration, int position, string state = "Listening to music")
+        private void UpdatePresence(string song, string duration, int position, string state = "Listening to music")
         {
             DiscordRPC.RichPresence presence = new DiscordRPC.RichPresence();
             presence.state = state;
-            presence.details = songName;
+            presence.details = Utility.Utf16ToUtf8(song);
             presence.largeImageKey = "musicbee";
             long now = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             presence.startTimestamp = now - position;
@@ -108,8 +111,9 @@ namespace MusicBeePlugin
             string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);
             string trackTitle = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
             string duration = mbApiInterface.NowPlaying_GetFileProperty(FilePropertyType.Duration);
-            int position = mbApiInterface.Player_GetPosition();
             // mbApiInterface.NowPlaying_GetDuration();
+            int position = mbApiInterface.Player_GetPosition();
+            string song = artist + " - " + trackTitle;
             // perform some action depending on the notification type
             switch (type)
             {
@@ -119,15 +123,15 @@ namespace MusicBeePlugin
                     switch (mbApiInterface.Player_GetPlayState())
                     {
                         case PlayState.Playing:
-                            UpdatePresence(artist + " - " + trackTitle, duration, position / 1000);
+                            UpdatePresence(song, duration, position / 1000);
                             break;
                         case PlayState.Paused:
-                            UpdatePresence(artist + " - " + trackTitle, duration, 0, state: "Paused");
+                            UpdatePresence(song, duration, 0, state: "Paused");
                             break;
                     }
                     break;
                 case NotificationType.TrackChanged:
-                    UpdatePresence(artist + " - " + trackTitle, duration, 0);
+                    UpdatePresence(song, duration, 0);
                     break;
             }
         }
