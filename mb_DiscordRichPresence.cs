@@ -115,6 +115,7 @@ namespace MusicBeePlugin
             // mbApiInterface.NowPlaying_GetDuration();
             int position = mbApiInterface.Player_GetPosition();
             string song = artist + " - " + trackTitle;
+            if (string.IsNullOrEmpty(artist)) { song = trackTitle; }
             // perform some action depending on the notification type
             switch (type)
             {
