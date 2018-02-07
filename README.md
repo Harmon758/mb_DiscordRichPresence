@@ -7,7 +7,7 @@ This [MusicBee](http://getmusicbee.com) plugin shows your currently playing song
 ## Requirements
 
 - MusicBee v3.x (Untested on v2.x)
-- Visual C++ Redistributable for Visual Studio 2015
+- Visual C++ Redistributable for Visual Studio 2015/7
 
 ## Installation
 
