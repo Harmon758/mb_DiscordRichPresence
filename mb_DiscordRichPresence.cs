@@ -50,15 +50,24 @@ namespace MusicBeePlugin
         private void HandleErrorCallback(int errorCode, string message) { }
         private void HandleDisconnectedCallback(int errorCode, string message) { }
 
-        private void UpdatePresence(string song, string duration, int position, string state = "Listening to music")
+        private void UpdatePresence(string song, string duration, int position, PlayState state)
         {
             DiscordRPC.RichPresence presence = new DiscordRPC.RichPresence();
-            presence.state = state;
+            //presence.state = state;
             song = Utility.Utf16ToUtf8(song);
             presence.details = song.Substring(0, song.Length - 1);
             presence.largeImageKey = "musicbee";
             long now = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            presence.startTimestamp = now - position;
+            if (state == PlayState.Playing)
+            {
+                presence.state = "Listening to music";
+                presence.startTimestamp = now - position;
+            }
+            else if (state == PlayState.Paused || state == PlayState.Stopped)
+            {
+                presence.state = state.ToString();
+                presence.startTimestamp = 0;
+            }
             // string[] durations = duration.Split(':');
             // long end = now + System.Convert.ToInt64(durations[0]) * 60 + System.Convert.ToInt64(durations[1]);
             // presence.endTimestamp = end;
@@ -117,23 +126,27 @@ namespace MusicBeePlugin
             string song = artist + " - " + trackTitle;
             if (string.IsNullOrEmpty(artist)) { song = trackTitle; }
             // perform some action depending on the notification type
+            PlayState state = mbApiInterface.Player_GetPlayState();
             switch (type)
             {
                 case NotificationType.PluginStartup:
                     // perform startup initialisation
                 case NotificationType.PlayStateChanged:
-                    switch (mbApiInterface.Player_GetPlayState())
+                    switch (state)
                     {
                         case PlayState.Playing:
-                            UpdatePresence(song, duration, position / 1000);
+                            UpdatePresence(song, duration, position / 1000, state);
                             break;
                         case PlayState.Paused:
-                            UpdatePresence(song, duration, 0, state: "Paused");
+                            UpdatePresence(song, duration, 0, state: state);
+                            break;
+                        case PlayState.Stopped:
+                            UpdatePresence(song, duration, 0, state);
                             break;
                     }
                     break;
                 case NotificationType.TrackChanged:
-                    UpdatePresence(song, duration, 0);
+                    UpdatePresence(song, duration, 0, state);
                     break;
             }
         }
