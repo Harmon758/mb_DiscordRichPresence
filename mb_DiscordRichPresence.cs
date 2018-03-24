@@ -58,7 +58,14 @@ namespace MusicBeePlugin
             presence.details = song.Substring(0, song.Length - 1);
             presence.largeImageKey = "musicbee";
             long now = (long)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            presence.startTimestamp = now - position;
+            if (state == "Listening to music")
+            {
+                presence.startTimestamp = now - position;
+            }
+            else
+            {
+                presence.startTimestamp = 0;
+            }
             // string[] durations = duration.Split(':');
             // long end = now + System.Convert.ToInt64(durations[0]) * 60 + System.Convert.ToInt64(durations[1]);
             // presence.endTimestamp = end;
@@ -129,6 +136,9 @@ namespace MusicBeePlugin
                             break;
                         case PlayState.Paused:
                             UpdatePresence(song, duration, 0, state: "Paused");
+                            break;
+                        case PlayState.Stopped:
+                            UpdatePresence(song, duration, 0, "Stopped");
                             break;
                     }
                     break;
